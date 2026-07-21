@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polynomdivision Explorer | Gymnasium Bayern</title>
+    <style>
+        :root {
+            --primary: #1E3A8A;
+            --primary-light: #2563EB;
+            --secondary: #0D9488;
+            --accent: #D97706;
+            --bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            --correct: #16A34A;
+            --correct-bg: #DCFCE7;
+            --incorrect: #DC2626;
+            --incorrect-bg: #FEE2E2;
+            --border: #CBD5E1;
+            --shadow: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.03);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 24px 12px;
+        }
+
+        .container {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, #0F172A, #1E3A8A);
+            color: white;
+            padding: 32px 24px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        header h1 {
+            font-size: 2.1rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: #94A3B8;
+            font-size: 1rem;
+        }
+
+        /* NAVIGATION TABS */
+        nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .nav-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+        }
+
+        .nav-btn.active {
+            background-color: var(--primary-light);
+            color: white;
+            border-color: var(--primary-light);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* TAB CONTENT */
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.25s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        h3 {
+            margin: 20px 0 10px 0;
+            font-size: 1.15rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 12px;
+            color: var(--text-muted);
+        }
+
+        .problem-box {
+            background-color: #FEF3C7;
+            border-left: 5px solid var(--accent);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            color: #78350F;
+        }
+
+        .info-box {
+            background-color: #EFF6FF;
+            border-left: 5px solid var(--primary-light);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            color: #1E40AF;
+        }
+
+        /* DIVISION SHOWCASE WITH SEPARATORS */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 700px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .math-display {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1.05rem;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+
+        .math-display h4 {
+            font-family: system-ui, sans-serif;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .line {
+            border: none;
+            border-top: 2px solid #0F172A;
+            margin: 4px 0;
+            width: 100%;
+        }
+
+        /* INTERACTIVE STEP TRAINER */
+        .trainer-box {
+            background: #F8FAFC;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .step-block {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 220px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn {
+            background-color: var(--primary-light);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #1D4ED8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #0F766E;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: 600;
+            padding: 10px 14px;
+            border-radius: 8px;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .feedback.correct {
+            display: block;
+            background-color: var(--correct-bg);
+            color: var(--correct);
+            border: 1px solid #A7F3D0;
+        }
+
+        .feedback.incorrect {
+            display: block;
+            background-color: var(--incorrect-bg);
+            color: var(--incorrect);
+            border: 1px solid #FECACA;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .badge-easy { background-color: #10B981; }
+        .badge-medium { background-color: #F59E0B; }
+        .badge-hard { background-color: #EF4444; }
+
+        .math-text {
+            font-family: "Georgia", serif;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: #0F172A;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Polynomdivision Explorer</h1>
+        <p>Interaktive Lerneinheit für die 10. Jahrgangsstufe (Gymnasium Bayern)</p>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('tab1', event)">1. Einstiegsproblem</button>
+        <button class="nav-btn" onclick="switchTab('tab2', event)">2. Die Methode</button>
+        <button class="nav-btn" onclick="switchTab('tab3', event)">3. Schritt-für-Schritt</button>
+        <button class="nav-btn" onclick="switchTab('tab4', event)">4. Übungsstudio</button>
+    </nav>
+
+    <!-- TAB 1: EINSTIEG -->
+    <section id="tab1" class="tab-content active">
+        <h2>🔍 Forschungsauftrag: Die verschwundenen Nullstellen</h2>
+        <p>Gegeben ist der Funktionsterm 3. Grades: <span class="math-text">f(x) = x³ + x² - 2x - 2</span></p>
+        <p>Gesucht sind alle Schnittpunkte mit der x-Achse (<span class="math-text">f(x) = 0</span>).</p>
+
+        <div class="problem-box">
+            <h3>Auftrag 1: Nullstelle durch Ausprobieren finden</h3>
+            <p>Teste kleine ganzzahlige Werte im Eingabefeld, um eine erste Nullstelle zu finden:</p>
+            <div class="input-row">
+                <span class="math-text">x = </span>
+                <input type="number" id="test-x" placeholder="Zahl eingeben">
+                <button class="btn" onclick="testNullstelle()">Berechnen</button>
+            </div>
+            <div id="test-fb" class="feedback"></div>
+        </div>
+
+        <div id="discovery-box" class="info-box hidden">
+            <h3>Auftrag 2: Die Erkenntnis</h3>
+            <p>Du hast die erste Nullstelle <span class="math-text">x₁ = -1</span> gefunden! Das bedeutet, dass der Term <span class="math-text">(x - (-1))</span>, also <span class="math-text">(x + 1)</span> als Baustein in der Funktion steckt.</p>
+            <p><strong>Die Hürde:</strong> Eine Funktion 3. Grades kann bis zu 3 Nullstellen haben. Weitere ganzzahlige Werte ergeben aber nicht 0. Wie kommen wir an die restlichen Nullstellen heran?</p>
+            <button class="btn btn-secondary" onclick="switchTab('tab2', event)">Weiter zur Lösungsmethode →</button>
+        </div>
+    </section>
+
+    <!-- TAB 2: METHODE -->
+    <section id="tab2" class="tab-content">
+        <h2>💡 Die Methode: Schriftliches Dividieren</h2>
+        <p>Um den bekannten Baustein <span class="math-text">(x + 1)</span> abzuspalten, teilen wir den gesamten Funktionsterm durch diesen Ausdruck. Das Prinzip funktioniert genau wie das schriftliche Teilen in der Grundschule!</p>
+
+        <div class="comparison-grid">
+            <div class="math-display">
+                <h4>Zahlenrechnung</h4>
+                <div>&nbsp;&nbsp;7 8 2 : 2 = 3 9 1</div>
+                <div>- 6</div>
+                <div class="line" style="width: 40px;"></div>
+                <div>&nbsp;&nbsp;1 8</div>
+                <div>- 1 8</div>
+                <div class="line" style="width: 50px;"></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;0 2</div>
+                <div>&nbsp;&nbsp;- 0 2</div>
+                <div class="line" style="width: 65px;"></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0 (Rest)</div>
+            </div>
+
+            <div class="math-display">
+                <h4>Polynomdivision</h4>
+                <div>&nbsp;(x³ + x² - 2x - 2) : (x + 1) = x² - 2</div>
+                <div>-(x³ + x²)</div>
+                <div class="line" style="width: 130px;"></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 2x - 2</div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&ndash; (- 2x - 2)</div>
+                <div class="line" style="width: 180px;"></div>
+                <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0 (Rest)</div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <strong>Der Kreislauf in 4 Schritten:</strong>
+            <ol style="margin-left: 20px; margin-top: 8px;">
+                <li><strong>Dividieren:</strong> Höchste Potenz des Restes durch das vordere <span class="math-text">x</span> teilen.</li>
+                <li><strong>Multiplizieren:</strong> Den neuen Termbaustein mit der gesamten Klammer zurückmultiplizieren.</li>
+                <li><strong>Subtrahieren:</strong> Das Ergebnis abziehen (Achtung: Vorzeichen in der Klammer drehen!).</li>
+                <li><strong>Herunterholen:</strong> Den nächsten Teil des Ausdrucks nach unten holen und wiederholen.</li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- TAB 3: SCHRITT-FÜR-SCHRITT -->
+    <section id="tab3" class="tab-content">
+        <h2>✍️ Selbstständig erarbeiten</h2>
+        <p>Erarbeite dir die Rechnung Schritt für Schritt selbst: <span class="math-text">(x³ + x² - 2x - 2) : (x + 1)</span></p>
+
+        <div class="trainer-box">
+            <!-- Schritt 1 -->
+            <div class="step-block">
+                <strong>Schritt 1: Ersten Teil dividieren</strong>
+                <p>Teile den ersten Term <span class="math-text">x³</span> durch <span class="math-text">x</span>.</p>
+                <div class="input-row">
+                    <span class="math-text">x³ : x =</span>
+                    <input type="text" id="step1-input" placeholder="Term eingeben">
+                    <button class="btn" onclick="checkStep1()">Überprüfen</button>
+                </div>
+                <div id="step1-fb" class="feedback"></div>
+            </div>
+
+            <!-- Schritt 2 -->
+            <div id="step2-wrapper" class="step-block hidden">
+                <strong>Schritt 2: Zurückmultiplizieren</strong>
+                <p>Multipliziere deinen neuen Baustein mit dem Divisor <span class="math-text">(x + 1)</span>.</p>
+                <div class="input-row">
+                    <span class="math-text">Ergebnis · (x + 1) =</span>
+                    <input type="text" id="step2-input" placeholder="Term eingeben">
+                    <button class="btn" onclick="checkStep2()">Überprüfen</button>
+                </div>
+                <div id="step2-fb" class="feedback"></div>
+            </div>
+
+            <!-- Schritt 3 -->
+            <div id="step3-wrapper" class="step-block hidden">
+                <strong>Schritt 3: Subtrahieren & Herunterholen</strong>
+                <p>Ziehe ab: <span class="math-text">(x³ + x²) - (x³ + x²) = 0</span>. Hole die verbleibenden Teile nach unten.</p>
+                <div class="input-row">
+                    <span>Neuer Restterm:</span>
+                    <input type="text" id="step3-input" placeholder="Term eingeben">
+                    <button class="btn" onclick="checkStep3()">Überprüfen</button>
+                </div>
+                <div id="step3-fb" class="feedback"></div>
+            </div>
+
+            <!-- Schritt 4 -->
+            <div id="step4-wrapper" class="step-block hidden">
+                <strong>Schritt 4: Zweiten Teil dividieren</strong>
+                <p>Teile nun den ersten Term deines Restes durch <span class="math-text">x</span>.</p>
+                <div class="input-row">
+                    <span class="math-text">-2x : x =</span>
+                    <input type="text" id="step4-input" placeholder="Zahl oder Term eingeben">
+                    <button class="btn" onclick="checkStep4()">Überprüfen</button>
+                </div>
+                <div id="step4-fb" class="feedback"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TAB 4: ÜBUNGSSTUDIO -->
+    <section id="tab4" class="tab-content">
+        <h2>🎯 Übungsstudio</h2>
+        <p>Wähle ein Level und berechne das Term-Ergebnis eigenständig. Klicke erneut auf einen Level-Button für eine neue Aufgabe!</p>
+
+        <div style="display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap;">
+            <button class="btn btn-secondary" style="background-color: #10B981;" onclick="loadTask('easy')">Level 1: Grundlagen</button>
+            <button class="btn btn-secondary" style="background-color: #F59E0B;" onclick="loadTask('medium')">Level 2: Standard (Grad 3)</button>
+            <button class="btn btn-secondary" style="background-color: #EF4444;" onclick="loadTask('hard')">Level 3: Profilstufe</button>
+        </div>
+
+        <div class="trainer-box">
+            <span id="task-badge" class="badge badge-easy">Level 1</span>
+            <h3 id="task-title" style="margin-top: 8px; font-size: 1.25rem;">Aufgabe lädt...</h3>
+            
+            <div class="input-row" style="margin-top: 16px;">
+                <span class="math-text">Ergebnis = </span>
+                <input type="text" id="task-input" style="width: 260px;" placeholder="Term eingeben" onkeypress="if(event.key==='Enter') checkTask()">
+                <button class="btn" onclick="checkTask()">Prüfen</button>
+            </div>
+            <div id="task-fb" class="feedback"></div>
+            
+            <div id="hint-box" class="info-box hidden" style="margin-top: 16px;"></div>
+            <div style="display: flex; gap: 10px; margin-top: 12px;">
+                <button class="btn btn-secondary" style="background-color: #64748B;" onclick="toggleHint()">Tipp anzeigen</button>
+                <button class="btn btn-secondary" style="background-color: #475569;" onclick="nextTask()">Nächste Aufgabe ↻</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+    function switchTab(tabId, evt) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        
+        if (evt && evt.currentTarget && evt.currentTarget.classList) {
+            evt.currentTarget.classList.add('active');
+        } else {
+            const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+            if (btn) btn.classList.add('active');
+        }
+    }
+
+    function testNullstelle() {
+        const x = parseFloat(document.getElementById('test-x').value);
+        const fb = document.getElementById('test-fb');
+        
+        if (isNaN(x)) {
+            fb.className = 'feedback incorrect';
+            fb.innerText = 'Bitte gib eine Zahl ein.';
+            return;
+        }
+
+        const y = Math.pow(x, 3) + Math.pow(x, 2) - (2 * x) - 2;
+        
+        if (Math.abs(y) < 0.00001) {
+            fb.className = 'feedback correct';
+            fb.innerText = `f(${x}) = 0 → Volltreffer! x = ${x} ist eine exakte Nullstelle!`;
+            document.getElementById('discovery-box').classList.remove('hidden');
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerText = `f(${x}) = ${y} (nicht 0). Probiere eine andere Zahl!`;
+        }
+    }
+
+    // Robuste Bereinigung von Mathe-Eingaben
+    function cleanInput(str) {
+        if (!str) return '';
+        return str.toString()
+                  .toLowerCase()
+                  .replace(/\s+/g, '')       // Leerzeichen löschen
+                  .replace(/[\(\)]/g, '')    // Klammern löschen
+                  .replace(/\*/g, '')        // * löschen
+                  .replace(/x²/g, 'x^2')
+                  .replace(/x³/g, 'x^3')
+                  .replace(/\++/g, '+')
+                  .replace(/\+-/g, '-')
+                  .replace(/-\+/g, '-');
+    }
+
+    // Step Trainer (Tab 3)
+    function checkStep1() {
+        const val = cleanInput(document.getElementById('step1-input').value);
+        const fb = document.getElementById('step1-fb');
+        if (val === 'x^2') {
+            fb.className = 'feedback correct';
+            fb.innerText = 'Richtig! x³ : x = x².';
+            document.getElementById('step2-wrapper').classList.remove('hidden');
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerText = 'Überlege noch einmal: Welcher Exponent bleibt übrig, wenn du x³ durch x teilst?';
+        }
+    }
+
+    function checkStep2() {
+        const val = cleanInput(document.getElementById('step2-input').value);
+        const fb = document.getElementById('step2-fb');
+        if (val === 'x^3+x^2' || val === 'x^2+x^3') {
+            fb.className = 'feedback correct';
+            fb.innerText = 'Stimmt! x² · (x + 1) = x³ + x².';
+            document.getElementById('step3-wrapper').classList.remove('hidden');
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerText = 'Multipliziere x² mit jedem Teil der Klammer (x + 1).';
+        }
+    }
+
+    function checkStep3() {
+        const val = cleanInput(document.getElementById('step3-input').value);
+        const fb = document.getElementById('step3-fb');
+        if (val === '-2x-2') {
+            fb.className = 'feedback correct';
+            fb.innerText = 'Korrekt! Nach Abzug von (x³ + x²) bleiben -2x - 2 übrig.';
+            document.getElementById('step4-wrapper').classList.remove('hidden');
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerText = 'Achte darauf, die verbleibenden Teile -2x - 2 nach unten zu holen.';
+        }
+    }
+
+    function checkStep4() {
+        const val = cleanInput(document.getElementById('step4-input').value);
+        const fb = document.getElementById('step4-fb');
+        if (val === '-2') {
+            fb.className = 'feedback correct';
+            fb.innerText = 'Klasse! Das vollständige Ergebnis lautet x² - 2.';
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerText = 'Teile -2x durch x. Was bleibt stehen?';
+        }
+    }
+
+    // Erweiterter Aufgabenpool für das Übungsstudio
+    const tasks = {
+        easy: [
+            { expr: "(x² + 7x + 12) : (x + 3)", solutions: ["x+4"], hint: "Erster Schritt: x² durch x teilen." },
+            { expr: "(x² - 4) : (x - 2)", solutions: ["x+2"], hint: "Tipp: Denk an die 3. Binomische Formel!" },
+            { expr: "(x² + 5x + 6) : (x + 2)", solutions: ["x+3"], hint: "Erster Schritt: x² durch x teilen." },
+            { expr: "(x² - 9) : (x + 3)", solutions: ["x-3"], hint: "Binomische Formel oder ganz normal durchrechnen." },
+            { expr: "(x² - 6x + 8) : (x - 2)", solutions: ["x-4"], hint: "Achtung bei den Vorzeichen im Schritt der Subtraktion!" },
+            { expr: "(x² + 2x - 15) : (x - 3)", solutions: ["x+5"], hint: "Erster Schritt: x² durch x teilen." },
+            { expr: "(x² - 8x + 12) : (x - 6)", solutions: ["x-2"], hint: "Teile x² durch x." }
+        ],
+        medium: [
+            { expr: "(x³ + x² - 2x - 2) : (x + 1)", solutions: ["x^2-2"], hint: "Unsere Einstiegsaufgabe! Nach x² hebt sich das x² auf." },
+            { expr: "(x³ - 4x² + x + 6) : (x + 1)", solutions: ["x^2-5x+6"], hint: "Erster Schritt: x³ durch x teilen." },
+            { expr: "(x³ + 3x² - 4x - 12) : (x - 2)", solutions: ["x^2+5x+6"], hint: "Achte beim Subtrahieren auf das Vorzeichen: 3x² - (-2x²) = 5x²." },
+            { expr: "(x³ - 2x² - 5x + 6) : (x - 1)", solutions: ["x^2-x-6"], hint: "Erster Schritt: x³ durch x teilen." },
+            { expr: "(x³ + 2x² - x - 2) : (x + 2)", solutions: ["x^2-1"], hint: "x³ durch x ergibt x². Nach der Subtraktion bleibt kein x²-Term übrig!" },
+            { expr: "(x³ - 7x + 6) : (x - 1)", solutions: ["x^2+x-6"], hint: "Achtung: Das x² fehlt! Ergänze gedanklich + 0x²." },
+            { expr: "(x³ - 3x² - 4x + 12) : (x - 3)", solutions: ["x^2-4"], hint: "Teile zuerst x³ durch x." }
+        ],
+        hard: [
+            { expr: "(x³ - 8) : (x - 2)", solutions: ["x^2+2x+4"], hint: "Fehlende Potenzen gedanklich ergänzen: x³ + 0x² + 0x - 8." },
+            { expr: "(2x³ + 3x² - 2x - 3) : (x - 1)", solutions: ["2x^2+5x+3"], hint: "Erster Schritt: 2x³ durch x teilen ergibt 2x²." },
+            { expr: "(x³ + 27) : (x + 3)", solutions: ["x^2-3x+9"], hint: "Denke an die Lücken: x³ + 0x² + 0x + 27." },
+            { expr: "(3x³ - 2x² - 7x - 2) : (x + 1)", solutions: ["3x^2-5x-2"], hint: "Erster Schritt: 3x³ durch x teilen." },
+            { expr: "(2x³ - 8x² + 3x - 12) : (x - 4)", solutions: ["2x^2+3"], hint: "Achte genau auf die Vorzeichen beim Abziehen." },
+            { expr: "(x⁴ - 16) : (x - 2)", solutions: ["x^3+2x^2+4x+8"], hint: "Polynom 4. Grades! Fülle alle Lücken von x³ bis x auf." },
+            { expr: "(4x³ + 4x² - x - 1) : (x + 1)", solutions: ["4x^2-1"], hint: "Erster Schritt: 4x³ durch x teilen." }
+        ]
+    };
+
+    let currentLevel = 'easy';
+    let currentTask = null;
+
+    function loadTask(level) {
+        currentLevel = level;
+        const list = tasks[level];
+        
+        // Zufällige Aufgabe auswählen
+        let nextTask = list[Math.floor(Math.random() * list.length)];
+        
+        // Falls dieselbe Aufgabe noch einmal gezogen wird, versuche eine andere zu nehmen
+        if (currentTask && list.length > 1 && nextTask.expr === currentTask.expr) {
+            nextTask = list[(list.indexOf(nextTask) + 1) % list.length];
+        }
+        
+        currentTask = nextTask;
+        
+        const badge = document.getElementById('task-badge');
+        badge.className = 'badge badge-' + level;
+        badge.innerText = level.toUpperCase();
+
+        document.getElementById('task-title').innerText = currentTask.expr;
+        document.getElementById('task-input').value = '';
+        
+        const fb = document.getElementById('task-fb');
+        fb.style.display = 'none';
+        fb.className = 'feedback';
+        
+        const hintBox = document.getElementById('hint-box');
+        hintBox.innerText = currentTask.hint;
+        hintBox.classList.add('hidden');
+    }
+
+    function nextTask() {
+        if (currentLevel) {
+            loadTask(currentLevel);
+        }
+    }
+
+    function checkTask() {
+        if (!currentTask) return;
+        
+        const rawVal = document.getElementById('task-input').value;
+        const inputVal = cleanInput(rawVal);
+        const fb = document.getElementById('task-fb');
+        
+        if (!inputVal) {
+            fb.className = 'feedback incorrect';
+            fb.innerText = 'Bitte gib zuerst ein Ergebnis ein.';
+            fb.style.display = 'block';
+            return;
+        }
+
+        const isCorrect = currentTask.solutions.some(sol => cleanInput(sol) === inputVal);
+        
+        if (isCorrect) {
+            fb.className = 'feedback correct';
+            fb.innerText = 'Ausgezeichnet! Das Ergebnis stimmt.';
+        } else {
+            fb.className = 'feedback incorrect';
+            fb.innerText = 'Noch nicht ganz. Überprüfe deine Rechnung und die Vorzeichen bei der Subtraktion!';
+        }
+        fb.style.display = 'block';
+    }
+
+    function toggleHint() {
+        document.getElementById('hint-box').classList.toggle('hidden');
+    }
+
+    window.onload = function() {
+        loadTask('easy');
+    };
+</script>
+</body>
+</html>
